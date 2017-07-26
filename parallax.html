@@ -32,20 +32,6 @@ body {
   clip-path: inset(0 0 0 0);
 }
 
-/* This container sets height to full-screen, allowing the top and bottom bumpers to be aligned properly. */
-.viewbox {
-  position: relative;
-  top: 0px;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: stretch;
-  /* In practice vh measurements seem to cause problems in some browsers, so if you're going to use some JS, maybe replace this with the actual window size, and set an "onresize" handler to update it. */
-  min-height: 100vh;
-  background-color: white;
-}
-
 .bumper {
   background: black;
   color: white;
@@ -60,19 +46,49 @@ body {
   z-index: 4;
 }
 
-@supports (position: sticky) or (position: -webkit-sticky) {
-  .topbumper {
-    top: 0px;
-    position: -webkit-sticky;
-    position: sticky;
+/* This container sets height to full-screen, allowing the top and bottom bumpers to be aligned properly. */
+.viewbox {
+  position: relative;
+  /* In practice vh measurements seem to cause problems in some browsers, so if you're going to use some JS, maybe replace this with the actual window size, and set an "onresize" handler to update it. */
+  min-height: 100vh;
+  background-color: white;
+}
+
+.topbumper {
+  position: absolute;
+  top: 0px;
+}
+
+.bottombumper {
+  position: absolute;
+  bottom: 0px;
+}
+
+@supports (display: flex) {
+  .viewbox {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: stretch;
   }
 
-  .bottombumper {
-    position: -webkit-sticky;
-    position: sticky;
-    bottom: 0px;
-  } */
-} 
+  @supports (position: sticky) or (position: -webkit-sticky) {
+    .topbumper {
+      top: 0px;
+      position: -webkit-sticky;
+      position: sticky;
+    }
+
+    .bottombumper {
+      position: -webkit-sticky;
+      position: sticky;
+      bottom: 0px;
+    }
+  } 
+}
+
+
 
 .kittenlist {
   border: 2px solid darkgrey;
