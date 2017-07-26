@@ -52,17 +52,18 @@ body {
   margin: 0px;
   padding: 5px;
   width: auto;
-  z-index: 4;
 }
 
 .topbumper {
   position: absolute;
   top: 0px;
+  z-index: 3;
 }
 
 .bottombumper {
   position: absolute;
   bottom: 0px;
+  z-index: 4;
 }
 
 @supports (position: sticky) or (position: -webkit-sticky) {
@@ -92,7 +93,7 @@ body {
     position: sticky;
     bottom: 0px;
   }
-} 
+}
 
 
 
@@ -192,15 +193,87 @@ body {
 
   </div>
 <script type="text/javascript">
-// if (
-//   typeof CSS != "undefined" && typeof CSS.supports != "undefined"
-//   && CSS.supports("(position: sticky) or (position: -webkit-sticky)")
-// ) {
-//  var bottombumper = document.querySelector(".bottombumper");
-//  var pintoheight = window.innerHeight - bottombumper.getBoundingClientRect().height;
-// // bottombumper.style.position = "sticky";
-// bottombumper.style.top = "calc(100vh - " + bottombumper.getBoundingClientRect().height + "px)";
-// }
+//Event-based workaround for browsers that can't do position: sticky
+if (
+  typeof CSS === "undefined" || typeof CSS.supports === "undefined"
+  || !CSS.supports("(position: sticky) or (position: -webkit-sticky)")
+) {
+  // Hacky way to try to make sure this happens after layout is done
+  window.setTimeout(function(){
+    console.log("Using JS workaround for sticky positioning");
+    var viewbox = document.querySelector(".viewbox");
+    var topbumper = document.querySelector(".topbumper");
+    var bottombumper = document.querySelector(".bottombumper");
+    var topbumperHeight = topbumper.getBoundingClientRect().height;
+    var bottombumperHeight = bottombumper.getBoundingClientRect().height;
+
+    var windowHeight = window.innerHeight;
+
+    var stick_those_bumpers = function(viewboxRect) {
+      if (viewboxRect.bottom > windowHeight && viewboxRect.top < (windowHeight - bottombumperHeight)) {
+        if (bottombumper.style.position !== "fixed") {
+          var bumper = bottombumper;
+          bumper.style.position = "fixed";
+          bumper.style.left = viewboxRect.left + "px";
+          bumper.style.right = (viewboxRect.right - viewboxRect.width) + "px";
+          console.log("Fix bottom bumper");
+          console.log(windowHeight);
+          console.log(viewboxRect);
+        }
+      } else {
+        if (bottombumper.style.position !== "absolute") {
+          var bumper = bottombumper;
+          bumper.style.position = "absolute";
+          bumper.style.left = "0px";
+          bumper.style.right = "0px";
+          console.log("Float bottom bumper");
+          console.log(windowHeight);
+          console.log(viewboxRect);
+        }
+      }
+
+      if (viewboxRect.top < 0 && viewboxRect.bottom > (0 + topbumperHeight)) {
+        if (topbumper.style.position !== "fixed") {
+          var bumper = topbumper;
+          bumper.style.position = "fixed";
+          bumper.style.left = viewboxRect.left + "px";
+          bumper.style.right = (viewboxRect.right - viewboxRect.width) + "px";
+          console.log("Fix top bumper");
+          console.log(windowHeight);
+          console.log(viewboxRect);
+        }
+      } else {
+        if (topbumper.style.position !== "absolute") {
+          var bumper = topbumper;
+          bumper.style.position = "absolute";
+          bumper.style.left = "0px";
+          bumper.style.right = "0px";
+          console.log("Float top bumper");
+          console.log(windowHeight);
+          console.log(viewboxRect);
+        }
+      }
+    }
+
+    // Reference: http://www.html5rocks.com/en/tutorials/speed/animations/
+    var ticking = false;
+    var parallax_listener = function() {
+      if (!ticking) {
+        var viewboxRect = viewbox.getBoundingClientRect();
+        window.requestAnimationFrame(function() {
+          stick_those_bumpers(viewboxRect);
+          ticking = false;
+        });
+      }
+      ticking = true;
+    }
+    window.addEventListener("scroll", parallax_listener);
+    window.addEventListener("resize", function() {
+      windowHeight = window.innerHeight;
+      parallax_listener();
+    });
+  });
+}
 </script>
 </body>
 </html>
