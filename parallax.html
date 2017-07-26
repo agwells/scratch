@@ -32,6 +32,15 @@ body {
   clip-path: inset(0 0 0 0);
 }
 
+
+/* This container sets height to full-screen, allowing the top and bottom bumpers to be aligned properly. */
+.viewbox {
+  position: relative;
+  /* In practice vh measurements seem to cause problems in some browsers, so if you're going to use some JS, maybe replace this with the actual window size, and set an "onresize" handler to update it. */
+  min-height: 100vh;
+  background-color: white;
+}
+
 .bumper {
   background: black;
   color: white;
@@ -46,14 +55,6 @@ body {
   z-index: 4;
 }
 
-/* This container sets height to full-screen, allowing the top and bottom bumpers to be aligned properly. */
-.viewbox {
-  position: relative;
-  /* In practice vh measurements seem to cause problems in some browsers, so if you're going to use some JS, maybe replace this with the actual window size, and set an "onresize" handler to update it. */
-  min-height: 100vh;
-  background-color: white;
-}
-
 .topbumper {
   position: absolute;
   top: 0px;
@@ -64,7 +65,12 @@ body {
   bottom: 0px;
 }
 
-@supports (display: flex) {
+@supports (position: sticky) or (position: -webkit-sticky) {
+  /* Using a flexbox to align the bumpers with top and bottom of the
+     parallax viewing area. We need to do this, because "position:sticky"
+     is based around the item's "position:relative" position, and this is
+     the only way to get the bottom bumper to bottom-align without hard-coding
+     its height in pixels. */
   .viewbox {
     display: flex;
     flex-direction: column;
@@ -73,20 +79,20 @@ body {
     align-items: stretch;
   }
 
-  @supports (position: sticky) or (position: -webkit-sticky) {
-    .topbumper {
-      top: 0px;
-      position: -webkit-sticky;
-      position: sticky;
-    }
+  /* Using sticky positioning, to make the bumpers stay in view while
+     the parallax window is in view. */
+  .topbumper {
+    top: 0px;
+    position: -webkit-sticky;
+    position: sticky;
+  }
 
-    .bottombumper {
-      position: -webkit-sticky;
-      position: sticky;
-      bottom: 0px;
-    }
-  } 
-}
+  .bottombumper {
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 0px;
+  }
+} 
 
 
 
