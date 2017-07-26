@@ -1,0 +1,187 @@
+<html>
+<style>
+/* See https://codepen.io/agwells/pen/prvOvd */
+
+body {
+}
+
+/* Scrollover content stays in place as you scroll, because of "position: fixed" */
+.innermost {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 480px;
+  margin-left: -160px;
+  margin-top: -240px;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  z-index: 1;
+}
+
+/* Parallax content is hidden until the viewing area scrolls into view, by the "clip" attribute on this container. */
+.clipbox {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 0px;
+  right: 0px;
+  overflow: hidden;
+  clip: rect(0px, auto, auto, 0px);
+  -webkit-clip-path: inset(0 0 0 0);
+  clip-path: inset(0 0 0 0);
+}
+
+/* This container sets height to full-screen, allowing the top and bottom bumpers to be aligned properly. */
+.viewbox {
+  position: relative;
+  /* In practice vh measurements seem to cause problems in some browsers, so if you're going to use some JS, maybe replace this with the actual window size, and set an "onresize" handler to update it. */
+  min-height: 100vh;
+  background-color: white;
+}
+
+.bumper {
+  background: black;
+  color: white;
+  text-align: center;
+  text-transform: uppercase;
+  font: 10px sans-serif;
+  left: 0px;
+  right: 0px;
+  margin: 0px;
+  padding: 5px;
+  width: auto;
+  z-index: 4;
+}
+
+.topbumper {
+  top: 0px;
+  position: absolute;
+}
+
+.bottombumper {
+  bottom: 0px;
+  position: absolute;
+}
+
+@supports (position: sticky) or (position: -webkit-sticky) {
+  .topbumper {
+    top: 0px;
+    position: -webkit-sticky;
+    position: sticky;
+  }
+
+  .bottombumper {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+}
+
+.kittenlist {
+  border: 2px solid darkgrey;
+  background: lightgrey;
+  padding: 10px;
+}
+
+.kittenstory {
+  border: 4px solid darkgrey;
+  background: lightgrey;
+  padding: 10px;
+  margin: 10px;
+  clear: both;
+}
+
+.kittenstory h3 {
+  margin-bottom: 10px;
+}
+
+.kittenstory img {
+  /* float: left; */
+  margin-right: 10px;
+}
+
+.kittenstory p {
+  padding-left: 80 px;
+}
+
+</style>
+<body>
+
+  <h1>Kittens!</h1>
+
+  <div class="kittenlist">
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+
+    <div id="parallaxbox" class="viewbox">
+      <div class="bumper topbumper">kitten!</div>
+      <div class="clipbox">
+        <!--div class="innermost"-->
+          <img class="innermost" src="https://placekitten.com/320/480" height="480" width="320" /></div>
+      <!--/div-->
+      <div class="bumper bottombumper">end of kitten</div>
+    </div>
+
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+    <div class="kittenstory">
+      <h3>Kitten</h3>
+      <img src="https://placekitten.com/320/240" />
+      <p>This is a kitten.</p>
+    </div>
+
+  </div>
+<script type="text/javascript">
+if (
+  typeof CSS != "undefined" && typeof CSS.supports != "undefined"
+  && CSS.supports("(position: sticky) or (position: -webkit-sticky)")
+) {
+ var bottombumper = document.querySelector(".bottombumper");
+ var pintoheight = window.innerHeight - bottombumper.getBoundingClientRect().height;
+// bottombumper.style.position = "sticky";
+bottombumper.style.top = "calc(100vh - " + bottombumper.getBoundingClientRect().height + "px)";
+}
+</script>
+</body>
+</html>
