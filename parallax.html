@@ -210,29 +210,11 @@ if (
     var windowHeight = window.innerHeight;
 
     var stick_those_bumpers = function(viewboxRect) {
-      if (viewboxRect.bottom > windowHeight && viewboxRect.top < (windowHeight - bottombumperHeight)) {
-        if (bottombumper.style.position !== "fixed") {
-          var bumper = bottombumper;
-          bumper.style.position = "fixed";
-          bumper.style.left = viewboxRect.left + "px";
-          bumper.style.right = (viewboxRect.right - viewboxRect.width) + "px";
-          console.log("Fix bottom bumper");
-          console.log(windowHeight);
-          console.log(viewboxRect);
-        }
-      } else {
-        if (bottombumper.style.position !== "absolute") {
-          var bumper = bottombumper;
-          bumper.style.position = "absolute";
-          bumper.style.left = "0px";
-          bumper.style.right = "0px";
-          console.log("Float bottom bumper");
-          console.log(windowHeight);
-          console.log(viewboxRect);
-        }
-      }
-
-      if (viewboxRect.top < 0 && viewboxRect.bottom > (0 + topbumperHeight)) {
+      // We want to display the top bumper, stuck to the top of the screen,
+      // if the parallax viewport has come into view enough for it to show,
+      // but the top of the parallax viewport is still off the top of the
+      // window.
+      if (viewboxRect.bottom > (0 + topbumperHeight) && viewboxRect.top < 0) {
         if (topbumper.style.position !== "fixed") {
           var bumper = topbumper;
           bumper.style.position = "fixed";
@@ -249,6 +231,32 @@ if (
           bumper.style.left = "0px";
           bumper.style.right = "0px";
           console.log("Float top bumper");
+          console.log(windowHeight);
+          console.log(viewboxRect);
+        }
+      }
+
+      // We want to display the bottom bumper, stuck to the bottom of the screen,
+      // if the top part of the parallax viewport is onscreen enough that the
+      // bumper could fit into it, but the bottom of the bumper is still below
+      // the bottom of the screen.
+      if (viewboxRect.top < (windowHeight - bottombumperHeight) && viewboxRect.bottom > windowHeight) {
+        if (bottombumper.style.position !== "fixed") {
+          var bumper = bottombumper;
+          bumper.style.position = "fixed";
+          bumper.style.left = viewboxRect.left + "px";
+          bumper.style.right = (viewboxRect.right - viewboxRect.width) + "px";
+          console.log("Fix bottom bumper");
+          console.log(windowHeight);
+          console.log(viewboxRect);
+        }
+      } else {
+        if (bottombumper.style.position !== "absolute") {
+          var bumper = bottombumper;
+          bumper.style.position = "absolute";
+          bumper.style.left = "0px";
+          bumper.style.right = "0px";
+          console.log("Float bottom bumper");
           console.log(windowHeight);
           console.log(viewboxRect);
         }
