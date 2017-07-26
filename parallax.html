@@ -35,6 +35,12 @@ body {
 /* This container sets height to full-screen, allowing the top and bottom bumpers to be aligned properly. */
 .viewbox {
   position: relative;
+  top: 0px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: stretch;
   /* In practice vh measurements seem to cause problems in some browsers, so if you're going to use some JS, maybe replace this with the actual window size, and set an "onresize" handler to update it. */
   min-height: 100vh;
   background-color: white;
@@ -54,16 +60,6 @@ body {
   z-index: 4;
 }
 
-.topbumper {
-  top: 0px;
-  position: absolute;
-}
-
-.bottombumper {
-  bottom: 0px;
-  position: absolute;
-}
-
 @supports (position: sticky) or (position: -webkit-sticky) {
   .topbumper {
     top: 0px;
@@ -74,8 +70,9 @@ body {
   .bottombumper {
     position: -webkit-sticky;
     position: sticky;
-  }
-}
+    bottom: 0px;
+  } */
+} 
 
 .kittenlist {
   border: 2px solid darkgrey;
@@ -173,15 +170,15 @@ body {
 
   </div>
 <script type="text/javascript">
-if (
-  typeof CSS != "undefined" && typeof CSS.supports != "undefined"
-  && CSS.supports("(position: sticky) or (position: -webkit-sticky)")
-) {
- var bottombumper = document.querySelector(".bottombumper");
- var pintoheight = window.innerHeight - bottombumper.getBoundingClientRect().height;
-// bottombumper.style.position = "sticky";
-bottombumper.style.top = "calc(100vh - " + bottombumper.getBoundingClientRect().height + "px)";
-}
+// if (
+//   typeof CSS != "undefined" && typeof CSS.supports != "undefined"
+//   && CSS.supports("(position: sticky) or (position: -webkit-sticky)")
+// ) {
+//  var bottombumper = document.querySelector(".bottombumper");
+//  var pintoheight = window.innerHeight - bottombumper.getBoundingClientRect().height;
+// // bottombumper.style.position = "sticky";
+// bottombumper.style.top = "calc(100vh - " + bottombumper.getBoundingClientRect().height + "px)";
+// }
 </script>
 </body>
 </html>
