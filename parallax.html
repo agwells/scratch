@@ -27,9 +27,14 @@ body {
   left: 0px;
   right: 0px;
   overflow: hidden;
-  clip: rect(0px, auto, auto, 0px);
-  -webkit-clip-path: inset(0 0 0 0);
-  clip-path: inset(0 0 0 0);
+  clip: rect(auto, auto, auto, auto);
+}
+@supports (clip-path: inset(0 0 0 0)) or (-webkit-clip-path: inset(0 0 0 0)) {
+  .clipbox {
+    clip: auto;
+    -webkit-clip-path: inset(0 0 0 0);
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 
@@ -57,13 +62,13 @@ body {
 .topbumper {
   position: absolute;
   top: 0px;
-  z-index: 3;
+  z-index: 4;
 }
 
 .bottombumper {
   position: absolute;
   bottom: 0px;
-  z-index: 4;
+  z-index: 3;
 }
 
 @supports (position: sticky) or (position: -webkit-sticky) {
