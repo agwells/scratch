@@ -2,9 +2,6 @@
 <style>
 /* See https://codepen.io/agwells/pen/prvOvd */
 
-body {
-}
-
 /* Scrollover content stays in place as you scroll, because of "position: fixed" */
 .innermost {
   position: fixed;
@@ -19,7 +16,8 @@ body {
   z-index: 1;
 }
 
-/* Parallax content is hidden until the viewing area scrolls into view, by the "clip" attribute on this container. */
+/* Parallax content is hidden until the viewing area scrolls into view, by the
+   "clip" attribute on this container. */
 .clipbox {
   position: absolute;
   top: 10px;
@@ -27,11 +25,15 @@ body {
   left: 0px;
   right: 0px;
   overflow: hidden;
+  /* Clip is officially deprecated, but is currently supported in all modern
+     browsers. And unlike clip-path, its specification seems to be stable
+     (probably because it's deprecated, so no one's working on it!) */
   clip: rect(auto, auto, auto, auto);
 }
-@supports (clip-path: inset(10px 1px 10px 1px)) or (-webkit-clip-path: inset(10px 1px 10px 1px)) {
+
+/* Here's how you would do this with "clip-path" if "clip" were not supported. */
+@supports not (clip: rect(auto, auto, auto, auto)) {
   .clipbox {
-    clip: auto;
     /* Chrome workaround. Although we actually want an inset of 0px, Chrome interprets that as
        "don't do any clipping at all in this direction." So instead we use a 1-pixel offset in
        all directions. Unfortunately this will cause a 1-pixel border for layouts meant to
@@ -45,7 +47,8 @@ body {
 /* This container sets height to full-screen, allowing the top and bottom bumpers to be aligned properly. */
 .viewbox {
   position: relative;
-  /* In practice vh measurements seem to cause problems in some browsers, so if you're going to use some JS, maybe replace this with the actual window size, and set an "onresize" handler to update it. */
+  /* In practice vh measurements seem to cause problems in some browsers, so if you're going to use some JS,
+     maybe replace this with the actual window size, and set an "onresize" handler to update it. */
   min-height: 100vh;
   background-color: white;
 }
@@ -134,6 +137,120 @@ body {
 }
 
 </style>
+<script type="text/javascript">
+var parallax_has_loaded = false;
+window.addEventListener("load", function(e) {
+  // Make sure this onload handler only fires once.
+  if (parallax_has_loaded) {
+    return;
+  }
+  parallax_has_loaded = true;
+
+  //Event-based workaround for browsers that can't do position: sticky
+  if (
+    typeof CSS === "undefined" || typeof CSS.supports === "undefined"
+    || !CSS.supports("(position: sticky) or (position: -webkit-sticky)")
+  ) {
+    console.log("Using JS workaround for sticky positioning");
+    var viewbox = document.querySelector(".viewbox");
+    var topbumper = document.querySelector(".topbumper");
+    var bottombumper = document.querySelector(".bottombumper");
+    var topbumperHeight = topbumper.getBoundingClientRect().height;
+    var bottombumperHeight = bottombumper.getBoundingClientRect().height;
+
+    var windowHeight = window.innerHeight;
+
+    // Stick a bumper to the edge of the screen, by changing its
+    // position to "fixed". The bumpers already have appropriate
+    // "top" and "bottom" values via CSS, so the same code
+    // works for both of them.
+    var stickBumper = function(bumper, viewboxDimensions, bumperLabel) {
+        if (bumper.style.position !== "fixed") {
+            console.debug("Stick " + bumperLabel + " bumper");
+            bumper.style.position = "fixed";
+            // If the parallax viewscreen is narrower than the window,
+            // the bumpers' default left and right settings of "0px",
+            // will cause the bumpers to expand when they're in
+            // fixed position. So we'll hardcode the bumpers to the
+            // same width as the parallax viewscreen.
+            bumper.style.left = viewboxDimensions.left + "px";
+            bumper.style.right = (viewboxDimensions.right - viewboxDimensions.width) + "px";
+        }
+    }
+
+    // Likewise, unstick a bumper from the edge of the screen,
+    // and return it to being absolutely positioned (within the
+    // viewscreen)
+    var unstickBumper = function(bumper, viewboxDimensions, bumperLabel) {
+        if (bumper.style.position !== "absolute") {
+            console.debug("Unstick " + bumperLabel + " bumper");
+            bumper.style.position = "absolute";
+            bumper.style.left = "0px";
+            bumper.style.right = "0px";
+        }
+    }
+
+    var simulateStickyBumpers = function(viewboxDimensions) {
+        // Initialize the cached bumper heights.
+        if (topbumperHeight <= 0 || bottombumperHeight <= 0) {
+            topbumperHeight = topbumper.getBoundingClientRect().height;
+            bottombumperHeight = bottombumper.getBoundingClientRect().height;
+        }
+
+        // If the bottom part of the parallax viewport
+        // is onscreen far enough that the whole bumper
+        // is showing, AND the top edge of the parallax
+        // viewport is still offscreen, then stick the
+        // top bumper to the top edge of the screen.
+        if (viewboxDimensions.bottom > (0 + topbumperHeight) && viewboxDimensions.top < 0) {
+            stickBumper(topbumper, viewboxDimensions, "top");
+        } else {
+            unstickBumper(topbumper, viewboxDimensions, "top");
+        }
+
+        // If the top part of the parallax viewport is
+        // onscreen far enough that the whole bumper is
+        // showing, AND the bottom edge of the parallax
+        // viewport is offscreen, then stick the bottom
+        // bumper to the bottom edge of the screen.
+        if (viewboxDimensions.top < (windowHeight - bottombumperHeight) && viewboxDimensions.bottom > windowHeight) {
+            stickBumper(bottombumper, viewboxDimensions, "bottom");
+        } else {
+            unstickBumper(bottombumper, viewboxDimensions, "bottom");
+        }
+    }
+
+    // Now set up the onscroll event handler. To improve performance,
+    // we'll use window.requestAnimationFrame instead of changing
+    // position on every scroll event.
+    //
+    // Reference: http://www.html5rocks.com/en/tutorials/speed/animations/
+    var waitingForAnimationFrame = false;
+    var onscrollHandler = function() {
+        if (!waitingForAnimationFrame) {
+            var viewboxDimensions = viewbox.getBoundingClientRect();
+            window.requestAnimationFrame(
+                function () {
+                    simulateStickyBumpers(viewboxDimensions);
+                    waitingForAnimationFrame = false;
+                }
+            )
+        }
+        waitingForAnimationFrame = true;
+    }
+
+    // Initialize it.
+    onscrollHandler();
+    
+    window.addEventListener("scroll", onscrollHandler);
+    window.addEventListener("resize", function () {
+        // Update our cached window height
+        windowHeight = windowHeight = window.innerHeight;
+        onscrollHandler();
+    });
+  }
+});
+</script>
 <body>
 
   <h1>Kittens!</h1>
@@ -201,96 +318,5 @@ body {
     </div>
 
   </div>
-<script type="text/javascript">
-//Event-based workaround for browsers that can't do position: sticky
-if (
-  typeof CSS === "undefined" || typeof CSS.supports === "undefined"
-  || !CSS.supports("(position: sticky) or (position: -webkit-sticky)")
-) {
-  // Hacky way to try to make sure this happens after layout is done
-  window.setTimeout(function(){
-    console.log("Using JS workaround for sticky positioning");
-    var viewbox = document.querySelector(".viewbox");
-    var topbumper = document.querySelector(".topbumper");
-    var bottombumper = document.querySelector(".bottombumper");
-    var topbumperHeight = topbumper.getBoundingClientRect().height;
-    var bottombumperHeight = bottombumper.getBoundingClientRect().height;
-
-    var windowHeight = window.innerHeight;
-
-    var stick_those_bumpers = function(viewboxRect) {
-      // We want to display the top bumper, stuck to the top of the screen,
-      // if the parallax viewport has come into view enough for it to show,
-      // but the top of the parallax viewport is still off the top of the
-      // window.
-      if (viewboxRect.bottom > (0 + topbumperHeight) && viewboxRect.top < 0) {
-        if (topbumper.style.position !== "fixed") {
-          var bumper = topbumper;
-          bumper.style.position = "fixed";
-          bumper.style.left = viewboxRect.left + "px";
-          bumper.style.right = (viewboxRect.right - viewboxRect.width) + "px";
-          console.log("Fix top bumper");
-          console.log(windowHeight);
-          console.log(viewboxRect);
-        }
-      } else {
-        if (topbumper.style.position !== "absolute") {
-          var bumper = topbumper;
-          bumper.style.position = "absolute";
-          bumper.style.left = "0px";
-          bumper.style.right = "0px";
-          console.log("Float top bumper");
-          console.log(windowHeight);
-          console.log(viewboxRect);
-        }
-      }
-
-      // We want to display the bottom bumper, stuck to the bottom of the screen,
-      // if the top part of the parallax viewport is onscreen enough that the
-      // bumper could fit into it, but the bottom of the bumper is still below
-      // the bottom of the screen.
-      if (viewboxRect.top < (windowHeight - bottombumperHeight) && viewboxRect.bottom > windowHeight) {
-        if (bottombumper.style.position !== "fixed") {
-          var bumper = bottombumper;
-          bumper.style.position = "fixed";
-          bumper.style.left = viewboxRect.left + "px";
-          bumper.style.right = (viewboxRect.right - viewboxRect.width) + "px";
-          console.log("Fix bottom bumper");
-          console.log(windowHeight);
-          console.log(viewboxRect);
-        }
-      } else {
-        if (bottombumper.style.position !== "absolute") {
-          var bumper = bottombumper;
-          bumper.style.position = "absolute";
-          bumper.style.left = "0px";
-          bumper.style.right = "0px";
-          console.log("Float bottom bumper");
-          console.log(windowHeight);
-          console.log(viewboxRect);
-        }
-      }
-    }
-
-    // Reference: http://www.html5rocks.com/en/tutorials/speed/animations/
-    var ticking = false;
-    var parallax_listener = function() {
-      if (!ticking) {
-        var viewboxRect = viewbox.getBoundingClientRect();
-        window.requestAnimationFrame(function() {
-          stick_those_bumpers(viewboxRect);
-          ticking = false;
-        });
-      }
-      ticking = true;
-    }
-    window.addEventListener("scroll", parallax_listener);
-    window.addEventListener("resize", function() {
-      windowHeight = window.innerHeight;
-      parallax_listener();
-    });
-  });
-}
-</script>
 </body>
 </html>
