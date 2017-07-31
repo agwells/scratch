@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Parallax/scrollover test page</title>
+    <style>
+        /* See https://codepen.io/agwells/pen/prvOvd */
+
+        /* Scrollover content stays in place as you scroll, because of "position: fixed" */
+        .innermost {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 320px;
+            height: 480px;
+            margin-left: -160px;
+            margin-top: -240px;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            z-index: 1;
+        }
+
+        /* Parallax content is hidden until the viewing area scrolls into view, by the
+        "clip" attribute on this container. */
+        .clipbox {
+            position: absolute;
+            top: 10px;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+            clip-path: inset(1px 1px 1px 1px);
+        }
+
+        /* This container sets height to full-screen, allowing the top and bottom bumpers to be aligned properly. */
+        .viewbox {
+            position: relative;
+            /* In practice vh measurements seem to cause problems in some browsers, so if you're going to use some JS,
+                maybe replace this with the actual window size, and set an "onresize" handler to update it. */
+            min-height: 100vh;
+            background-color: white;
+        }
+
+        .bumper {
+            background: black;
+            color: white;
+            text-align: center;
+            text-transform: uppercase;
+            font: 5vh sans-serif;
+            left: 0;
+            right: 0;
+            margin: 0;
+            padding: 5px;
+            width: auto;
+        }
+
+        .topbumper {
+            position: absolute;
+            top: 0;
+            z-index: 4;
+        }
+
+        .bottombumper {
+            position: absolute;
+            bottom: 0;
+            z-index: 3;
+        }
+
+        @supports (position: sticky) or (position: -webkit-sticky) {
+            /* Using a flexbox to align the bumpers with top and bottom of the
+            parallax viewing area. We need to do this, because "position:sticky"
+            is based around the item's "position:relative" position, and this is
+            the only way to get the bottom bumper to bottom-align without hard-coding
+            its height in pixels. */
+            .viewbox {
+                display: flex;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                align-items: stretch;
+            }
+
+            /* Using sticky positioning, to make the bumpers stay in view while
+            the parallax window is in view. */
+            .topbumper {
+                top: 0;
+                position: -webkit-sticky;
+                position: sticky;
+            }
+
+            .bottombumper {
+                position: -webkit-sticky;
+                position: sticky;
+                bottom: 0;
+            }
+        }
+
+
+        /* Styling for the rest of the page. */
+        .kittenlist {
+            border: 2px solid darkgrey;
+            background: lightgrey;
+            padding: 10px;
+        }
+
+        .kittenstory {
+            border: 4px solid darkgrey;
+            background: lightgrey;
+            padding: 10px;
+            margin: 10px;
+            clear: both;
+        }
+
+        .kittenstory h3 {
+            margin-bottom: 10px;
+        }
+
+        .kittenstory img {
+            /* float: left; */
+            margin-right: 10px;
+        }
+
+        .kittenstory p {
+            padding-left: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Kittens!</h1>
+    <div class="kittenlist">
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+        <!-- Parallax content goes here! -->
+        <div id="parallaxbox" class="viewbox">
+            <div class="bumper topbumper">kitten!</div>
+            <div class="clipbox">
+                <img class="innermost" src="https://placekitten.com/320/480" height="480" width="320" /></div>
+            <div class="bumper bottombumper">end of kitten</div>
+        </div>
+        <!-- Parallax content goes here! -->
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+        <div class="kittenstory">
+            <h3>Kitten</h3>
+            <img src="https://placekitten.com/320/240" />
+            <p>This is a kitten.</p>
+        </div>
+    </div>
+</body>
+
+</html>
