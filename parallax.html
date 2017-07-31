@@ -29,15 +29,15 @@ body {
   overflow: hidden;
   clip: rect(auto, auto, auto, auto);
 }
-@supports (clip-path: inset(1px)) or (-webkit-clip-path: inset(1px)) {
+@supports (clip-path: inset(10px 1px 10px 1px)) or (-webkit-clip-path: inset(10px 1px 10px 1px)) {
   .clipbox {
     clip: auto;
     /* Chrome workaround. Although we actually want an inset of 0px, Chrome interprets that as
        "don't do any clipping at all in this direction." So instead we use a 1-pixel offset in
        all directions. Unfortunately this will cause a 1-pixel border for layouts meant to
        stretch to the edge of the screen. */
-    -webkit-clip-path: inset(1px);
-    clip-path: inset(1px);
+    -webkit-clip-path: inset(10px 1px 10px 1px);
+    clip-path: inset(10px 1px 10px 1px);
   }
 }
 
